@@ -1,0 +1,6 @@
+*.pyc
+*pylint
+media/*
+db.sqlite3
+pip-log.txt 
+.vscode
