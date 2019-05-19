@@ -23,7 +23,7 @@ class Query(object):
         id=graphene.ID(),
         first_name=graphene.String(),
         last_name=graphene.String(),
-        email=graphene.Int(),
+        email=graphene.String(),
         mobile=graphene.String()
     )
     users = graphene.List(UserType)
@@ -88,23 +88,74 @@ class Query(object):
     def resolve_masjids_images(self, info, **kwargs):
         return MasjidsImages.objects.all()
 
-# class User(graphene.ObjectType):
-#     first_name=graphene.String(),
-#     last_name=graphene.String(),
-#     email=graphene.String(),
-#     mobile=graphene.String(),
-#     password=graphene.String()
 
-# class AddUser(graphene.Mutation):
-#         class Arguments:
-#             user=graphene.Field(lambda: User)
+class AddUser(graphene.Mutation):
+  
+    class Arguments:
+        first_name=graphene.String()
+        last_name=graphene.String()
+        email=graphene.String()
+        mobile=graphene.String()
+        password=graphene.String()
 
-#         def mutate(self, info, user_data=None):
-#             user = User(
-#                 first_name=user_data.first_name,
-#                 last_name=user_data.last_name,
-#                 email=user_data.email,
-#                 mobile=user_data.mobile,
-#                 password=user_data.password
-#             )
-#             return AddUser(user=user)
+    user = graphene.Field(UserType)
+
+    def mutate(self, info, first_name, last_name, email, mobile, password):
+        user = User(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            mobile=mobile,
+            password=password
+        )
+        user.save()
+        return AddUser(
+            user=user
+            )
+
+class AddMasjid(graphene.Mutation):
+    class Arguments:
+        name=graphene.String()
+        address=graphene.String()
+        lga=graphene.String()
+        lat_long=graphene.String()
+        state=graphene.String()
+        user_id=graphene.String()
+        contact_name=graphene.String()
+        contact_number=graphene.String()
+    
+    masjid = graphene.Field(MasjidType)
+
+    def mutate(self, info, name, address, lga, lat_long, state, user_id, contact_name, contact_number):
+        masjid = Masjid(
+            name=name,
+            address=address,
+            lga=lga,
+            lat_long=lat_long,
+            state=state,
+            user_id=user_id,
+            contact_name=contact_name,
+            contact_number=contact_number
+        )
+        masjid.save()
+        return AddMasjid(
+            masjid=masjid
+        )
+
+class AddMasjidsImages(graphene.Mutation):
+    class Arguments:
+        images=graphene.String()
+        masjid_id=graphene.String()
+
+    masjid_images = graphene.Field(MasjidsImagesType)
+    def mutate(self, info, images, masjid_id):
+        masjid_images= MasjidsImages(
+            images=images,
+            masjid_id=masjid_id
+        )
+        masjid_images.save
+        return AddMasjidsImages(masjid_images=masjid_images)
+
+class Mutation(graphene.ObjectType):
+    add_user = AddUser.Field()
+    add_masjid = AddMasjid.Field()
